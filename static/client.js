@@ -47,20 +47,25 @@ var canvas = document.getElementById('canvas');
 canvas.width = 800;
 canvas.height = 400;
 var context = canvas.getContext('2d');
-socket.on('state', function(players) {
+socket.on('state', function(players, ball) {
   console.log(players);
   context.clearRect(0, 0, 800, 600);
     for (var id in players) {
       var player = players[id];
       if(player.color === 1){
         context.fillStyle = 'red';
+        context.beginPath();
+        context.fillRect(player.x, player.y, 40, 40);
       }
       if(player.color === 2){
         context.fillStyle = 'blue';
+        context.beginPath();
+        context.fillRect(player.x, player.y, 40, 40);
+        var ctx = canvas.getContext('2d');
+        ctx.fillStyle = 'white';
+        ctx.arc(player.x-20, player.y+20, 20, 0, 2 * Math.PI);
+        ctx.fill();
       }
-      context.beginPath();
-      //context.arc(player.x, player.y, 10, 0, 2 * Math.PI);
-      //context.fill();
-      context.fillRect(player.x, player.y, 40, 40);
+
     }
 });

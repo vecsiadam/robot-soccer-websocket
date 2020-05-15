@@ -22,6 +22,10 @@ server.listen(5000, function() {
 
 var players = {};
 var counter = 1;
+var ball = {
+  x: 400,
+  y: 200,
+};
 //refactor
 io.on('connection', function(socket) {
   var playersSize = Object.keys(players).length;
@@ -72,8 +76,6 @@ io.on('connection', function(socket) {
   }
   });
   
-  
-
 setInterval(function() {
-  io.sockets.emit('state', players);
+  io.sockets.emit('state', players, ball);
 }, 1000 / 60);
