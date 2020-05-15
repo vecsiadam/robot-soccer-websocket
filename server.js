@@ -21,29 +21,58 @@ server.listen(5000, function() {
 });
 
 var players = {};
+var counter = 1;
+//refactor
 io.on('connection', function(socket) {
-  socket.on('new player', function() {
-    players[socket.id] = {
-      x: 300,
-      y: 300
-    };
+  var playersSize = Object.keys(players).length;
+  if(playersSize <= 1){
+    if(playersSize === 0){
+      socket.on('new player', function() {
+        players[socket.id] = {
+          x: 20,
+          y: 175,
+          color: counter
+        };
+        console.log(players)
+        console.log("Players size: " + playersSize)
+        console.log("Number of players: " + counter)
+        counter++;
+    });
+    } else {
+      socket.on('new player', function() {
+        players[socket.id] = {
+          x: 740,
+          y: 175,
+          color: counter
+        };
+        console.log(players)
+        console.log("Players size: " + playersSize)
+        console.log("Number of players: " + counter)
+        counter++;
+    });
+    }
+      
+    socket.on('movement', function(data) {
+      var player = players[socket.id] || {};
+        if (data.left && player.x > 0) {
+          player.x -= 5;
+        }
+        if (data.up && player.y > 0 ) {
+          player.y -= 5;
+        }
+        if (data.right && player.x < 760) {
+          player.x += 5;
+        }
+        if (data.down && player.y < 360) {
+          player.y += 5;
+        }
+    });
+  } else {
+    console.log("Players limit 2");
+  }
   });
-  socket.on('movement', function(data) {
-    var player = players[socket.id] || {};
-    if (data.left) {
-      player.x -= 5;
-    }
-    if (data.up) {
-      player.y -= 5;
-    }
-    if (data.right) {
-      player.x += 5;
-    }
-    if (data.down) {
-      player.y += 5;
-    }
-  });
-});
+  
+  
 
 setInterval(function() {
   io.sockets.emit('state', players);
