@@ -6,6 +6,12 @@ var movement = {
   left: false,
   right: false
 }
+
+var ball = {
+  left: false,
+  right: false
+}
+
 document.addEventListener('keydown', function(event) {
   switch (event.keyCode) {
     case 65: // A
@@ -19,6 +25,12 @@ document.addEventListener('keydown', function(event) {
       break;
     case 83: // S
       movement.down = true;
+      break;
+    case 37: // left arrow
+      ball.left = true;
+      break;
+    case 39: // right arrow
+      ball.right = true;
       break;
   }
 });
@@ -36,11 +48,17 @@ document.addEventListener('keyup', function(event) {
     case 83: // S
       movement.down = false;
       break;
+    case 37: // left arrow
+      ball.left = false;
+      break;
+    case 39: // right arrow
+      ball.right = false;
+      break;
   }
 });
 socket.emit('new player');
 setInterval(function() {
-  socket.emit('movement', movement);
+  socket.emit('movement', movement, ball);
 }, 1000 / 60);
 
 var canvas = document.getElementById('canvas');
@@ -63,7 +81,8 @@ socket.on('state', function(players, ball) {
         context.fillRect(player.x, player.y, 40, 40);
         var ctx = canvas.getContext('2d');
         ctx.fillStyle = 'white';
-        ctx.arc(player.x-20, player.y+20, 20, 0, 2 * Math.PI);
+        //ctx.arc(player.x-20, player.y+20, 20, 0, 2 * Math.PI);
+        ctx.arc(ball.x, ball.y, 20, 0, 2 * Math.PI);
         ctx.fill();
       }
 

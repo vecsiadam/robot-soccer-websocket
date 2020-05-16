@@ -23,8 +23,8 @@ server.listen(5000, function() {
 var players = {};
 var counter = 1;
 var ball = {
-  x: 400,
-  y: 200,
+  x: 80,
+  y: 190,
 };
 //refactor
 io.on('connection', function(socket) {
@@ -38,7 +38,6 @@ io.on('connection', function(socket) {
           color: counter
         };
         console.log(players)
-        console.log("Players size: " + playersSize)
         console.log("Number of players: " + counter)
         counter++;
     });
@@ -50,13 +49,12 @@ io.on('connection', function(socket) {
           color: counter
         };
         console.log(players)
-        console.log("Players size: " + playersSize)
         console.log("Number of players: " + counter)
         counter++;
     });
     }
       
-    socket.on('movement', function(data) {
+    socket.on('movement', function(data, ballMove) {
       var player = players[socket.id] || {};
         if (data.left && player.x > 0) {
           player.x -= 5;
@@ -69,10 +67,16 @@ io.on('connection', function(socket) {
         }
         if (data.down && player.y < 360) {
           player.y += 5;
+        }  
+        if(ballMove.right && ball.x < 780){
+          ball.x += 5;
+        }
+        if(ballMove.left && ball.x > 20){
+          ball.x -= 5;
         }
     });
   } else {
-    console.log("Players limit 2");
+    console.log("Players limit max 2");
   }
   });
   
