@@ -54,18 +54,18 @@ io.on('connection', function(socket) {
     });
     }
       
-    socket.on('movement', function(data, ballMove) {
+    socket.on('movement', function(playerMove, ballMove) {
       var player = players[socket.id] || {};
-        if (data.left && player.x > 0) {
+        if (playerMove.left && player.x > 0) {
           player.x -= 5;
         }
-        if (data.up && player.y > 0 ) {
+        if (playerMove.up && player.y > 0 ) {
           player.y -= 5;
         }
-        if (data.right && player.x < 760) {
+        if (playerMove.right && player.x < 760) {
           player.x += 5;
         }
-        if (data.down && player.y < 360) {
+        if (playerMove.down && player.y < 360) {
           player.y += 5;
         }  
         if(ballMove.right && ball.x < 780){
