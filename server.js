@@ -24,8 +24,8 @@ server.listen(port, function() {
 var players = {};
 var counter = 1;
 var ball = {
-  x: 80,
-  y: 190,
+  x: 400,
+  y: 200,
 };
 //refactor
 io.on('connection', function(socket) {
@@ -59,13 +59,6 @@ io.on('connection', function(socket) {
     var blueGoals = 0;
     socket.on('movement', function(playerMove, ballMove) {
       var player = players[socket.id] || {};
-        /*if (playerMove.left && player.x > 0) {
-          player.x -= 5;
-        }
-        if (playerMove.right && player.x < 760) {
-          player.x += 5;
-        }*/
-
         if (playerMove.up && player.y >= 0 ) {
           player.y -= 1;
         }

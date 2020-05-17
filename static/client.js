@@ -84,6 +84,5 @@ socket.on('state', function(players, ball) {
         context.arc(ball.x, ball.y, 20, 0, 2 * Math.PI);
         context.fill();
       }
-      console.log(player);
     }
 });
