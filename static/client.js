@@ -1,7 +1,7 @@
 var socket = io();
 
 var movement = {
-  up: false,
+  up: true,
   down: false,
   left: false,
   right: false
@@ -14,18 +14,6 @@ var ball = {
 
 document.addEventListener('keydown', function(event) {
   switch (event.keyCode) {
-    case 65: // A
-      movement.left = true;
-      break;
-    case 87: // W
-      movement.up = true;
-      break;
-    case 68: // D
-      movement.right = true;
-      break;
-    case 83: // S
-      movement.down = true;
-      break;
     case 37: // left arrow
       ball.left = true;
       break;
@@ -36,18 +24,6 @@ document.addEventListener('keydown', function(event) {
 });
 document.addEventListener('keyup', function(event) {
   switch (event.keyCode) {
-    case 65: // A
-      movement.left = false;
-      break;
-    case 87: // W
-      movement.up = false;
-      break;
-    case 68: // D
-      movement.right = false;
-      break;
-    case 83: // S
-      movement.down = false;
-      break;
     case 37: // left arrow
       ball.left = false;
       break;
@@ -56,6 +32,8 @@ document.addEventListener('keyup', function(event) {
       break;
   }
 });
+
+
 socket.emit('new player');
 setInterval(function() {
   socket.emit('movement', movement, ball);
@@ -70,21 +48,42 @@ socket.on('state', function(players, ball) {
   context.clearRect(0, 0, 800, 600);
     for (var id in players) {
       var player = players[id];
+      if(player.y === 100 || player.y < 100){
+        movement.up = false;
+        movement.down = true;
+      }
+      if(player.y === 260 || player.y > 260){
+        movement.up = true;
+        movement.down = false;
+      }
       if(player.color === 1){
+        //red players
         context.fillStyle = 'red';
         context.beginPath();
         context.fillRect(player.x, player.y, 40, 40);
+        context.fillRect(200, 50, 40, 40);
+        context.fillRect(200, 300, 40, 40);
+        //gate
+        context.fillStyle = 'white';
+        context.fillRect(0, 100, 10, 200);
+
       }
       if(player.color === 2){
+        //blue players
         context.fillStyle = 'blue';
         context.beginPath();
         context.fillRect(player.x, player.y, 40, 40);
-        var ctx = canvas.getContext('2d');
-        ctx.fillStyle = 'white';
+        context.fillRect(600, 50, 40, 40);
+        context.fillRect(600, 300, 40, 40);
+        //gate
+        context.fillStyle = 'white';
+        context.fillRect(790, 100, 10, 200);
+        //ball
+        context.fillStyle = 'white';
         //ctx.arc(player.x-20, player.y+20, 20, 0, 2 * Math.PI);
-        ctx.arc(ball.x, ball.y, 20, 0, 2 * Math.PI);
-        ctx.fill();
+        context.arc(ball.x, ball.y, 20, 0, 2 * Math.PI);
+        context.fill();
       }
-
+      console.log(player);
     }
 });
