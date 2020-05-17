@@ -1,13 +1,11 @@
 var socket = io();
 
-var movement = {
+var playerMovement = {
   up: true,
-  down: false,
-  left: false,
-  right: false
+  down: false
 }
 
-var ball = {
+var ballMovement = {
   left: false,
   right: false
 }
@@ -15,28 +13,28 @@ var ball = {
 document.addEventListener('keydown', function(event) {
   switch (event.keyCode) {
     case 37: // left arrow
-      ball.left = true;
+      ballMovement.left = true;
       break;
     case 39: // right arrow
-      ball.right = true;
+      ballMovement.right = true;
       break;
   }
 });
-document.addEventListener('keyup', function(event) {
+/*document.addEventListener('keyup', function(event) {
   switch (event.keyCode) {
     case 37: // left arrow
-      ball.left = false;
+      ballMovement.left = false;
       break;
     case 39: // right arrow
-      ball.right = false;
+      ballMovement.right = false;
       break;
   }
-});
+});*/
 
 
 socket.emit('new player');
 setInterval(function() {
-  socket.emit('movement', movement, ball);
+  socket.emit('movement', playerMovement, ballMovement);
 }, 1000 / 60);
 
 var canvas = document.getElementById('canvas');
@@ -48,13 +46,14 @@ socket.on('state', function(players, ball) {
   context.clearRect(0, 0, 800, 600);
     for (var id in players) {
       var player = players[id];
+      //TODO: mozgatás refactor
       if(player.y === 100 || player.y < 100){
-        movement.up = false;
-        movement.down = true;
+        playerMovement.up = false;
+        playerMovement.down = true;
       }
       if(player.y === 260 || player.y > 260){
-        movement.up = true;
-        movement.down = false;
+        playerMovement.up = true;
+        playerMovement.down = false;
       }
       if(player.color === 1){
         //red players
@@ -80,7 +79,6 @@ socket.on('state', function(players, ball) {
         context.fillRect(790, 100, 10, 200);
         //ball
         context.fillStyle = 'white';
-        //ctx.arc(player.x-20, player.y+20, 20, 0, 2 * Math.PI);
         context.arc(ball.x, ball.y, 20, 0, 2 * Math.PI);
         context.fill();
       }

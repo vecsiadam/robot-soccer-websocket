@@ -24,16 +24,19 @@ server.listen(port, function() {
 var players = {};
 var counter = 1;
 var ball = {
-  x: 400,
-  y: 200,
+  x: 60,
+  y: 175,
 };
-//refactor
+var playersIds =[];
+
+//TODO: socket.on metódus refactor
 io.on('connection', function(socket) {
   var playersSize = Object.keys(players).length;
   if(playersSize <= 1){
     if(playersSize === 0){
       socket.on('new player', function() {
         players[socket.id] = {
+          id: socket.id,
           x: 20,
           y: 175,
           color: counter
@@ -45,6 +48,7 @@ io.on('connection', function(socket) {
     } else {
       socket.on('new player', function() {
         players[socket.id] = {
+          id: socket.id,
           x: 740,
           y: 175,
           color: counter
@@ -52,11 +56,16 @@ io.on('connection', function(socket) {
         console.log(players)
         console.log("Number of players: " + counter)
         counter++;
+        for (var id in players) {
+          var player = players[id];
+          playersIds.push(player.id);
+        }
     });
     }
-    //refactor
+
     var redGoals = 0;
     var blueGoals = 0;
+    
     socket.on('movement', function(playerMove, ballMove) {
       var player = players[socket.id] || {};
         if (playerMove.up && player.y >= 0 ) {
@@ -66,16 +75,20 @@ io.on('connection', function(socket) {
         if (playerMove.down && player.y <= 360) {
           player.y += 1;
         }
-       
+
+        //TODO: random ossza ki hogy kinél legyen  labda
+        ballInBlueGoalKeeper(player, ballMove, ball);
+
         if(ballMove.right && ball.x < 780){
           ball.x += 5;
           if(ball.x === 775){
             redGoals++;
             console.log('Result: blue: ' + blueGoals + ' ,red: ' + redGoals);
-            ball = {
-              x: 400,
-              y: 200,
-            };
+              ball = {
+                x: player.x+20,
+                y: player.y-20,
+              };
+            
           }
         }
         if(ballMove.left && ball.x > 20){
@@ -83,10 +96,11 @@ io.on('connection', function(socket) {
           if(ball.x === 25){
             blueGoals++;
             console.log('Result: blue: ' + blueGoals + ' ,red: ' + redGoals);
-            ball = {
-              x: 400,
-              y: 200,
-            };
+              ball = {
+                x: player.x+20,
+                y: player.y+60,
+              };
+            
           }
         } 
     });
@@ -98,3 +112,17 @@ io.on('connection', function(socket) {
 setInterval(function() {
   io.sockets.emit('state', players, ball);
 }, 1000 / 60);
+
+function ballInBlueGoalKeeper(player, ballMove, ball) {
+  if(player.id == playersIds[1] && ballMove.left === false ){
+    ball.y = player.y+20;
+    ball.x = player.x-20;
+    }
+  }
+
+  function ballInRedGoalKeeper(player, ballMove, ball) {
+    if(player.id == playersIds[0] && ballMove.right === false ){
+      ball.y = player.y+20;
+      ball.x = player.x+60;
+      }
+    }
