@@ -20,7 +20,7 @@ document.addEventListener('keydown', function(event) {
       break;
   }
 });
-/*document.addEventListener('keyup', function(event) {
+document.addEventListener('keyup', function(event) {
   switch (event.keyCode) {
     case 37: // left arrow
       ballMovement.left = false;
@@ -29,7 +29,7 @@ document.addEventListener('keydown', function(event) {
       ballMovement.right = false;
       break;
   }
-});*/
+});
 
 
 socket.emit('new player');
@@ -43,6 +43,7 @@ canvas.height = 400;
 var context = canvas.getContext('2d');
 socket.on('state', function(players, ball) {
   console.log(players);
+  console.log(ball);
   context.clearRect(0, 0, 800, 600);
     for (var id in players) {
       var player = players[id];
@@ -55,6 +56,7 @@ socket.on('state', function(players, ball) {
         playerMovement.up = true;
         playerMovement.down = false;
       }
+      
       if(player.color === 1){
         //red players
         context.fillStyle = 'red';
