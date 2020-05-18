@@ -64,10 +64,16 @@ function newPlayer(socket, x, y) {
 function movement(socket) {
   socket.on('movement', function(playerMove, ballMove) {
     var player = players[socket.id] || {};
-    if (playerMove.up && player.y >= 0 ) {
+    if (player.id === playersIds[0] && playerMove.redUp && player.y >= 0 ) {
       player.y -= 1;
     }
-    if (playerMove.down && player.y <= 360) {
+    if (player.id === playersIds[0] && playerMove.redDown && player.y <= 360) {
+      player.y += 1;
+    }
+    if (player.id === playersIds[1] && playerMove.blueUp && player.y >= 0 ) {
+      player.y -= 1;
+    }
+    if (player.id === playersIds[1] && playerMove.blueDown && player.y <= 360) {
       player.y += 1;
     }
 
@@ -105,6 +111,7 @@ function ballInBlueGoalKeeper(player, ballMove, ball) {
     ball.y = player.y+20;
     ball.x = player.x-20;
   }
+
 }
 
 function ballInRedGoalKeeper(player, ballMove, ball) {
@@ -115,5 +122,5 @@ function ballInRedGoalKeeper(player, ballMove, ball) {
 }
 
 setInterval(function() {
-  io.sockets.emit('state', players, ball,playersIds);
+  io.sockets.emit('state', players, ball, playersIds);
 }, 1000 / 60);
