@@ -10,8 +10,8 @@ var io = socketIO(server);
 var port = 8080;
 
 var ball = {
-  x: 300,
-  y: 300
+  x: 400,
+  y: 200
 };
 var players = {};
 var counter = 1;
@@ -64,6 +64,7 @@ function newPlayer(socket, x, y) {
 function movement(socket) {
   socket.on('movement', function(playerMove, ballMove) {
     var player = players[socket.id] || {};
+
     if (player.id === playersIds[0] && playerMove.redUp && player.y >= 0 ) {
       player.y -= 1;
     }
@@ -77,50 +78,38 @@ function movement(socket) {
       player.y += 1;
     }
 
-    //TODO: random ossza ki hogy kinél legyen  labda
-    ballInBlueGoalKeeper(player, ballMove, ball);
+    //TODO: random ossza ki hogy kinél legyen  labda kezdéskor
+    //ballInRedGoalKeeper(player, ballMove, ball);
     //console.log(ball);
+
+    //TODO:
+    if(ballMove.up && ball.y > 0){
+      ball.y -= 5;
+    }
+    console.log(ball);
+    //TODO:
+    if(ballMove.down && ball.y < 400){
+      ball.y += 5;
+    }
 
     if(ballMove.right && ball.x < 780){
       ball.x += 5;
-      if(ball.x === 775){
+      if(ball.x === 780 && ball.y >= 100 && ball.y <= 300){
         redGoals++;
         console.log('Result: blue: ' + blueGoals + ' ,red: ' + redGoals);
-        ball = {
-            x: player.x+20,
-            y: player.y-20,
-          };
       }
     }
+   
     if(ballMove.left && ball.x > 20){
       ball.x -= 5;
-      if(ball.x === 25){
+      if(ball.x === 20 && ball.y >= 100 && ball.y <= 300 ){
         blueGoals++;
         console.log('Result: blue: ' + blueGoals + ' ,red: ' + redGoals);
-          ball = {
-            x: player.x+20,
-            y: player.y+60,
-          };
       }
     } 
   });
 }
 
-function ballInBlueGoalKeeper(player, ballMove, ball) {
-  if(player.id === playersIds[1] && ballMove.left === false ){
-    ball.y = player.y+20;
-    ball.x = player.x-20;
-  }
-
-}
-
-function ballInRedGoalKeeper(player, ballMove, ball) {
-  if(player.id === playersIds[0] && ballMove.right === false ){
-    ball.y = player.y+20;
-    ball.x = player.x+60;
-  }
-}
-
 setInterval(function() {
-  io.sockets.emit('state', players, ball, playersIds);
+  io.sockets.emit('state', players, ball, playersIds, blueGoals, redGoals);
 }, 1000 / 60);

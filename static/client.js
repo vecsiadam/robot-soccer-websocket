@@ -9,16 +9,38 @@ var playerMovement = {
 
 var ballMovement = {
   left: false,
-  right: false
+  right: false,
+  up: false,
+  down: false
 }
 
-/*document.addEventListener('keydown', function(event) {
+var bluePlayer ={};
+var redPlayer ={};
+var ballPos ={};
+var redGoalKeeper = false;
+var blueGoalKeeper = false;
+
+document.addEventListener('keydown', function(event) {
   switch (event.keyCode) {
     case 37: // left arrow
       ballMovement.left = true;
+      redGoalKeeper = false;
+      blueGoalKeeper = false;
+      break;
+    case 38: // up arrow
+      ballMovement.up = true;
+      redGoalKeeper = false;
+      blueGoalKeeper = false;
       break;
     case 39: // right arrow
       ballMovement.right = true;
+      redGoalKeeper = false;
+      blueGoalKeeper = false;
+      break;
+    case 40: // down arrow
+      ballMovement.down = true;
+      redGoalKeeper = false;
+      blueGoalKeeper = false;
       break;
   }
 });
@@ -27,11 +49,17 @@ document.addEventListener('keyup', function(event) {
     case 37: // left arrow
       ballMovement.left = false;
       break;
+    case 38: // up arrow
+      ballMovement.up = false;
+      break;
     case 39: // right arrow
       ballMovement.right = false;
       break;
+    case 40: // down arrow
+      ballMovement.down = false;
+      break;
   }
-});*/
+});
 
 
 socket.emit('new player');
@@ -43,10 +71,27 @@ var canvas = document.getElementById('canvas');
 canvas.width = 800;
 canvas.height = 400;
 var context = canvas.getContext('2d');
-socket.on('state', function(players, ball, playersIds) {
-  console.log(players);
-  console.log(ball);
+socket.on('state', function(players, ball, playersIds, blueGoals, redGoals, redGoalKeeper, blueGoalKeeper) {
+  bluePlayer = players[playersIds[0]];
+  redPlayer = players[playersIds[1]];
+  //ballPos = ball;
+  //console.log(bluePlayer);
+  //console.log(redPlayer);
+  //console.log(ballPos);
   context.clearRect(0, 0, 800, 600);
+  if(ball.x === 780 && ball.y >= 100 && ball.y <= 300){
+    console.log('Result: blue: ' + blueGoals + ' ,red: ' + redGoals);
+    blueGoalKeeper = true;
+    redGoalKeeper = false;
+    ballMovement.right = false;
+  }
+  if(ball.x === 20 && ball.y >= 100 && ball.y <= 300){
+    console.log('Result: blue: ' + blueGoals + ' ,red: ' + redGoals);
+    redGoalKeeper = true;
+    blueGoalKeeper = false;
+    ballMovement.left = false;
+  }
+  
   for (var id in players) {
     var player = players[id];
     if(player.y === 100 || player.y < 100){
@@ -69,25 +114,37 @@ socket.on('state', function(players, ball, playersIds) {
         playerMovement.blueDown = false;
       }
     }
-      
-    if(player.color === 1){
+
+    if(redGoalKeeper && player === players[playersIds[0]]){
+      ball.x = player.x + 60;
+      ball.y = player.y + 20;
+      ballMovement.right = true;
+    }
+
+    if(blueGoalKeeper && player === players[playersIds[1]]){
+      ball.x = player.x - 20;
+      ball.y = player.y + 20;
+      ballMovement.left = true;
+    }
+
+    if(player === players[playersIds[0]]){
       //red players
       context.fillStyle = 'red';
       context.beginPath();
       context.fillRect(player.x, player.y, 40, 40);
-      context.fillRect(200, 50, 40, 40);
-      context.fillRect(200, 300, 40, 40);
+      //context.fillRect(200, 50, 40, 40);
+      //context.fillRect(200, 300, 40, 40);
       //gate
       context.fillStyle = 'white';
       context.fillRect(0, 100, 10, 200);
     }
-    if(player.color === 2){
+    if(player === players[playersIds[1]]){
       //blue players
       context.fillStyle = 'blue';
       context.beginPath();
       context.fillRect(player.x, player.y, 40, 40);
-      context.fillRect(600, 50, 40, 40);
-      context.fillRect(600, 300, 40, 40);
+      //context.fillRect(600, 50, 40, 40);
+      //context.fillRect(600, 300, 40, 40);
       //gate
       context.fillStyle = 'white';
       context.fillRect(790, 100, 10, 200);
