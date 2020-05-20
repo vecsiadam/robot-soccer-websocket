@@ -10,7 +10,7 @@ var io = socketIO(server);
 var port = 8080;
 
 var ball = {
-  x: 400,
+  x: 780,
   y: 200
 };
 var players = {};
@@ -78,21 +78,14 @@ function movement(socket) {
       player.y += 1;
     }
 
-    //TODO: random ossza ki hogy kinél legyen  labda kezdéskor
-    //ballInRedGoalKeeper(player, ballMove, ball);
-    //console.log(ball);
-
-    //TODO:
     if(ballMove.up && ball.y > 0){
-      ball.y -= 5;
+      ball.y -= 1;
     }
-    console.log(ball);
-    //TODO:
     if(ballMove.down && ball.y < 400){
-      ball.y += 5;
+      ball.y += 1;
     }
 
-    if(ballMove.right && ball.x < 780){
+   if(ballMove.right && ball.x < 780){
       ball.x += 5;
       if(ball.x === 780 && ball.y >= 100 && ball.y <= 300){
         redGoals++;

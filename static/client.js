@@ -14,13 +14,9 @@ var ballMovement = {
   down: false
 }
 
-var bluePlayer ={};
-var redPlayer ={};
-var ballPos ={};
 var redGoalKeeper = false;
 var blueGoalKeeper = false;
-
-document.addEventListener('keydown', function(event) {
+/*document.addEventListener('keydown', function(event) {
   switch (event.keyCode) {
     case 37: // left arrow
       ballMovement.left = true;
@@ -59,7 +55,7 @@ document.addEventListener('keyup', function(event) {
       ballMovement.down = false;
       break;
   }
-});
+});*/
 
 
 socket.emit('new player');
@@ -72,12 +68,6 @@ canvas.width = 800;
 canvas.height = 400;
 var context = canvas.getContext('2d');
 socket.on('state', function(players, ball, playersIds, blueGoals, redGoals, redGoalKeeper, blueGoalKeeper) {
-  bluePlayer = players[playersIds[0]];
-  redPlayer = players[playersIds[1]];
-  //ballPos = ball;
-  //console.log(bluePlayer);
-  //console.log(redPlayer);
-  //console.log(ballPos);
   context.clearRect(0, 0, 800, 600);
   if(ball.x === 780 && ball.y >= 100 && ball.y <= 300){
     console.log('Result: blue: ' + blueGoals + ' ,red: ' + redGoals);
@@ -118,13 +108,19 @@ socket.on('state', function(players, ball, playersIds, blueGoals, redGoals, redG
     if(redGoalKeeper && player === players[playersIds[0]]){
       ball.x = player.x + 60;
       ball.y = player.y + 20;
-      ballMovement.right = true;
+      setTimeout(function(){ 
+        ballMovement.right = true;
+        redGoalKeeper = false;
+      }, 3000);
     }
 
     if(blueGoalKeeper && player === players[playersIds[1]]){
       ball.x = player.x - 20;
       ball.y = player.y + 20;
-      ballMovement.left = true;
+      setTimeout(function(){
+        ballMovement.left = true;
+        blueGoalKeeper = false;
+      }, 3000);
     }
 
     if(player === players[playersIds[0]]){
