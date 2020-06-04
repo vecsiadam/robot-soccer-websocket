@@ -29,8 +29,8 @@ io.on("connection", function (socket) {
   socket.on("new player", function () {
     players[socket.id] = {
       id: socket.id,
-      x: 300,
-      y: 300
+      x: 200,
+      y: 300,
     };
     //sending player details
     //console.log(players[socket.id]);
@@ -38,29 +38,31 @@ io.on("connection", function (socket) {
   });
 
   // reciving movements
-  socket.on("movement", function (data) {
-    var player = players[socket.id] || {};
-    //console.log(players);
-    if (data.left) {
-      player.x -= 5;
+  socket.on("player movement", function (data) {
+    var player = data.player || {};
+    var serverPlayer = players[player.id] || {};
+    
+    if(player.id === serverPlayer.id){
+      serverPlayer.x = player.x;
+      serverPlayer.y = player.y;
     }
-    if (data.up) {
-      player.y -= 5;
-    }
-    if (data.right) {
-      player.x += 5;
-    }
-    if (data.down) {
-      player.y += 5;
-    }
+
+    var message = {
+      messageId: uuid(),
+      players: players
+    };
+
+    //sending message
+    //io.sockets.emit("state", message);
+    console.log(message);
   });
 });
 
-setInterval(function () {
+/*setInterval(function () {
   var message = new Object();
   message.messageId = uuid();
   message.players = players;
   //sending message
   io.sockets.emit("state", message);
   console.log(message);
-}, 1000 / 60);
+}, 1000 / 60);*/

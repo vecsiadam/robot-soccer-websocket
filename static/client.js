@@ -1,77 +1,117 @@
 var socket = io();
 
-var movement = {
-  up: false,
-  down: false,
-  left: false,
-  right: false,
-};
-//var player = {};
-
-document.addEventListener("keydown", function (event) {
-  switch (event.keyCode) {
-    case 65: // A
-      movement.left = true;
-      break;
-    case 87: // W
-      movement.up = true;
-      break;
-    case 68: // D
-      movement.right = true;
-      break;
-    case 83: // S
-      movement.down = true;
-      break;
-  }
-});
-document.addEventListener("keyup", function (event) {
-  switch (event.keyCode) {
-    case 65: // A
-      movement.left = false;
-      break;
-    case 87: // W
-      movement.up = false;
-      break;
-    case 68: // D
-      movement.right = false;
-      break;
-    case 83: // S
-      movement.down = false;
-      break;
-  }
-});
-
-//sending message
+//Connecting to the websocket
 socket.emit("new player");
-//reciveing message
+
+//reciveing player details and
+var myPlayer;
 socket.on("player details", function (playerDetails) {
-  /*player = {
-    id: playerDetails.id,
-    x: playerDetails.x,
-    y: playerDetails.y
-  };*/
-  console.log('ez itt a player details azt hiszem itt kellene rajzolni is!\n')
-  console.log(playerDetails);
+  myPlayer = new myPlayerMovement(
+    40,
+    60,
+    "blue",
+    playerDetails.id,
+    playerDetails.x,
+    playerDetails.y
+  );
+  gameArea.start();
+  console.log( playerDetails.id);
 });
+
+var gameArea = {
+  canvas: document.getElementById("canvas"),
+  start: function () {
+    this.canvas.width = 800;
+    this.canvas.height = 600;
+    this.context = this.canvas.getContext("2d");
+    document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+    this.interval = setInterval(updateGameArea, 20);
+    window.addEventListener("keydown", function (e) {
+      e.preventDefault();
+      gameArea.keys = gameArea.keys || [];
+      gameArea.keys[e.keyCode] = e.type == "keydown";
+    });
+    window.addEventListener("keyup", function (e) {
+      gameArea.keys[e.keyCode] = e.type == "keydown";
+    });
+  },
+  clear: function () {
+    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+  },
+};
+
+function myPlayerMovement(width, height, color, id, x, y) {
+  this.id = id;
+  this.width = width;
+  this.height = height;
+  this.speedX = 0;
+  this.speedY = 0;
+  this.x = x;
+  this.y = y;
+  this.update = function () {
+    ctx = gameArea.context;
+    ctx.fillStyle = color;
+    ctx.fillRect(this.x, this.y, this.width, this.height);
+  };
+  this.newPos = function () {
+    this.x += this.speedX;
+    this.y += this.speedY;
+    //console.log(myPlayer.id + ", x: " + myPlayer.x + ", y: " + myPlayer.y);
+  };
+}
+
+function updateGameArea() {
+  gameArea.clear();
+  if (gameArea.keys && gameArea.keys[87]) {
+    myPlayer.speedY -= 1;
+  }
+  if (gameArea.keys && gameArea.keys[83]) {
+    myPlayer.speedY += 1;
+  }
+  if (gameArea.keys && gameArea.keys[65]) {
+    myPlayer.speedX -= 1;
+  }
+  if (gameArea.keys && gameArea.keys[68]) {
+    myPlayer.speedX += 1;
+  }
+  myPlayer.newPos();
+  myPlayer.update();
+}
 
 setInterval(function () {
+  var playerDescriptor = {
+    id: myPlayer.id,
+    x: myPlayer.x,
+    y: myPlayer.y,
+  };
+
+  var message = {
+    messageId: generateUuid(),
+    player: playerDescriptor
+  };
+
   //sending message
-  socket.emit("movement", movement);
+  socket.emit("player movement", message);
 }, 1000 / 60);
 
-var canvas = document.getElementById("canvas");
-canvas.width = 800;
-canvas.height = 600;
-var context = canvas.getContext("2d");
-//reciveing message
+function generateUuid() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  })};
+
+
+//reciveing players state
 socket.on("state", function (message) {
-  //console.log(message);
-  context.clearRect(0, 0, 800, 600);
-  context.fillStyle = "blue";
+  console.log(message);
+  /*gameArea.context.clearRect(0, 0, 800, 600);
+  gameArea.context.fillStyle = "blue";
   for (var id in message.players) {
-    var player = message.players[id];
-    context.beginPath();
-    context.fillRect(player.x, player.y, 40, 60);
-    context.fill();
-  }
+    if(id !== myPlayer.id){
+      var player = message.players[id];
+      gameArea.context.beginPath();
+      gameArea.context.fillRect(player.x, player.y, 40, 60);
+      gameArea.context.fill();
+    }
+  }*/
 });
