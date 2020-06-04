@@ -5,17 +5,22 @@ socket.emit("new player");
 
 //reciveing player details and
 var myPlayer;
+var myId = null;
 socket.on("player details", function (playerDetails) {
-  myPlayer = new myPlayerMovement(
-    40,
-    60,
-    "blue",
-    playerDetails.id,
-    playerDetails.x,
-    playerDetails.y
-  );
-  gameArea.start();
-  console.log( playerDetails.id);
+
+  if(myId === null){
+    myPlayer = new myPlayerMovement(
+      40,
+      60,
+      "blue",
+      playerDetails.id,
+      playerDetails.x,
+      playerDetails.y
+    );
+    gameArea.start();
+    console.log(playerDetails.id);
+    myId = playerDetails.id;
+  }
 });
 
 var gameArea = {
@@ -80,7 +85,7 @@ function updateGameArea() {
 
 setInterval(function () {
   var playerDescriptor = {
-    id: myPlayer.id,
+    id: myId,
     x: myPlayer.x,
     y: myPlayer.y,
   };
@@ -101,11 +106,12 @@ function generateUuid() {
   })};
 
 
-//reciveing players state
+//TODO:
+//reciveing players state and drow it red color
 socket.on("state", function (message) {
-  console.log(message);
-  /*gameArea.context.clearRect(0, 0, 800, 600);
-  gameArea.context.fillStyle = "blue";
+  //console.log(message);
+  //gameArea.context.clearRect(0, 0, 800, 600);
+  gameArea.context.fillStyle = "red";
   for (var id in message.players) {
     if(id !== myPlayer.id){
       var player = message.players[id];
@@ -113,5 +119,5 @@ socket.on("state", function (message) {
       gameArea.context.fillRect(player.x, player.y, 40, 60);
       gameArea.context.fill();
     }
-  }*/
+  }
 });

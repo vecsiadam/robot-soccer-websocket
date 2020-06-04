@@ -30,39 +30,30 @@ io.on("connection", function (socket) {
     players[socket.id] = {
       id: socket.id,
       x: 200,
-      y: 300,
+      y: 300
     };
+    var player = players[socket.id];
     //sending player details
-    //console.log(players[socket.id]);
-    io.sockets.emit("player details", players[socket.id]);
+    io.sockets.emit("player details", player);
   });
 
   // reciving movements
   socket.on("player movement", function (data) {
     var player = data.player || {};
     var serverPlayer = players[player.id] || {};
-    
-    if(player.id === serverPlayer.id){
+
+    if (player.id === serverPlayer.id) {
       serverPlayer.x = player.x;
       serverPlayer.y = player.y;
     }
 
     var message = {
       messageId: uuid(),
-      players: players
+      players: players,
     };
 
     //sending message
-    //io.sockets.emit("state", message);
+    io.sockets.emit("state", message);
     console.log(message);
   });
 });
-
-/*setInterval(function () {
-  var message = new Object();
-  message.messageId = uuid();
-  message.players = players;
-  //sending message
-  io.sockets.emit("state", message);
-  console.log(message);
-}, 1000 / 60);*/
