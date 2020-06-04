@@ -25,17 +25,22 @@ server.listen(port, function () {
 
 var players = {};
 io.on("connection", function (socket) {
-  // reciving new message
+  // reciving new player connection
   socket.on("new player", function () {
     players[socket.id] = {
+      id: socket.id,
       x: 300,
-      y: 300,
+      y: 300
     };
+    //sending player details
+    //console.log(players[socket.id]);
+    io.sockets.emit("player details", players[socket.id]);
   });
-  // reciving new message
+
+  // reciving movements
   socket.on("movement", function (data) {
     var player = players[socket.id] || {};
-    console.log(players);
+    //console.log(players);
     if (data.left) {
       player.x -= 5;
     }
@@ -54,8 +59,8 @@ io.on("connection", function (socket) {
 setInterval(function () {
   var message = new Object();
   message.messageId = uuid();
-  message.players  = players;
+  message.players = players;
   //sending message
   io.sockets.emit("state", message);
-  //console.log(message);
+  console.log(message);
 }, 1000 / 60);

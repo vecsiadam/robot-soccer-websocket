@@ -6,6 +6,8 @@ var movement = {
   left: false,
   right: false,
 };
+//var player = {};
+
 document.addEventListener("keydown", function (event) {
   switch (event.keyCode) {
     case 65: // A
@@ -41,6 +43,17 @@ document.addEventListener("keyup", function (event) {
 
 //sending message
 socket.emit("new player");
+//reciveing message
+socket.on("player details", function (playerDetails) {
+  /*player = {
+    id: playerDetails.id,
+    x: playerDetails.x,
+    y: playerDetails.y
+  };*/
+  console.log('ez itt a player details azt hiszem itt kellene rajzolni is!\n')
+  console.log(playerDetails);
+});
+
 setInterval(function () {
   //sending message
   socket.emit("movement", movement);
@@ -52,7 +65,7 @@ canvas.height = 600;
 var context = canvas.getContext("2d");
 //reciveing message
 socket.on("state", function (message) {
-  console.log(message);
+  //console.log(message);
   context.clearRect(0, 0, 800, 600);
   context.fillStyle = "blue";
   for (var id in message.players) {
