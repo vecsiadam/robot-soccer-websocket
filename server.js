@@ -26,11 +26,12 @@ server.listen(port, function () {
 var players = {};
 io.on("connection", function (socket) {
   // reciving new player connection
+
   socket.on("new player", function () {
     players[socket.id] = {
       id: socket.id,
-      x: 200,
-      y: 300
+      x: 300,
+      y: 400
     };
     var player = players[socket.id];
     //sending player details
@@ -52,7 +53,7 @@ io.on("connection", function (socket) {
       players: players,
     };
 
-    //sending message
+    //sending players state
     io.sockets.emit("state", message);
     console.log(message);
   });

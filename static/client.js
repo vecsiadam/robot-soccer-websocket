@@ -18,7 +18,6 @@ socket.on("player details", function (playerDetails) {
       playerDetails.y
     );
     gameArea.start();
-    console.log(playerDetails.id);
     myId = playerDetails.id;
   }
 });
@@ -49,8 +48,6 @@ function myPlayerMovement(width, height, color, id, x, y) {
   this.id = id;
   this.width = width;
   this.height = height;
-  this.speedX = 0;
-  this.speedY = 0;
   this.x = x;
   this.y = y;
   this.update = function () {
@@ -58,28 +55,22 @@ function myPlayerMovement(width, height, color, id, x, y) {
     ctx.fillStyle = color;
     ctx.fillRect(this.x, this.y, this.width, this.height);
   };
-  this.newPos = function () {
-    this.x += this.speedX;
-    this.y += this.speedY;
-    //console.log(myPlayer.id + ", x: " + myPlayer.x + ", y: " + myPlayer.y);
-  };
 }
 
 function updateGameArea() {
   gameArea.clear();
   if (gameArea.keys && gameArea.keys[87]) {
-    myPlayer.speedY -= 1;
+    myPlayer.y -= 5;
   }
   if (gameArea.keys && gameArea.keys[83]) {
-    myPlayer.speedY += 1;
+    myPlayer.y += 5;
   }
   if (gameArea.keys && gameArea.keys[65]) {
-    myPlayer.speedX -= 1;
+    myPlayer.x -= 5;
   }
   if (gameArea.keys && gameArea.keys[68]) {
-    myPlayer.speedX += 1;
+    myPlayer.x += 5;
   }
-  myPlayer.newPos();
   myPlayer.update();
 }
 
@@ -109,9 +100,9 @@ function generateUuid() {
 //TODO:
 //reciveing players state and drow it red color
 socket.on("state", function (message) {
-  //console.log(message);
+  //console.log(message.players[myId]);
   //gameArea.context.clearRect(0, 0, 800, 600);
-  gameArea.context.fillStyle = "red";
+  /*gameArea.context.fillStyle = "red";
   for (var id in message.players) {
     if(id !== myPlayer.id){
       var player = message.players[id];
@@ -119,5 +110,5 @@ socket.on("state", function (message) {
       gameArea.context.fillRect(player.x, player.y, 40, 60);
       gameArea.context.fill();
     }
-  }
+  }*/
 });
