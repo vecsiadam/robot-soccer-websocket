@@ -26,7 +26,6 @@ server.listen(port, function () {
 var players = {};
 io.on("connection", function (socket) {
   // reciving new player connection
-
   socket.on("new player", function () {
     players[socket.id] = {
       id: socket.id,
@@ -38,7 +37,7 @@ io.on("connection", function (socket) {
     io.sockets.emit("player details", player);
   });
 
-  // reciving movements
+  // reciving movements and save in players object
   socket.on("player movement", function (data) {
     var player = data.player || {};
     var serverPlayer = players[player.id] || {};
@@ -55,6 +54,5 @@ io.on("connection", function (socket) {
 
     //sending players state
     io.sockets.emit("state", message);
-    console.log(message);
   });
 });

@@ -16,8 +16,8 @@ socket.on("player details", function (playerDetails) {
       playerDetails.x,
       playerDetails.y
     );
-    gameArea.start();
     myId = playerDetails.id;
+    gameArea.start();
   }
 });
 
@@ -40,7 +40,7 @@ var gameArea = {
 
     //reciveing players state and draw other players with red color
     socket.on("state", function (message) {
-      //console.log(message.players[myId]);
+      console.log(message);
       ctx = gameArea.context;
       ctx.fillStyle = "red";
       for (var id in message.players) {
@@ -98,8 +98,7 @@ setInterval(function () {
     messageId: generateUuid(),
     player: playerDescriptor,
   };
-
-  //sending message
+  //sending my player movement message
   socket.emit("player movement", message);
 }, 1000 / 60);
 
