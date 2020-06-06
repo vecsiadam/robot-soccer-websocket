@@ -24,18 +24,14 @@ server.listen(port, function () {
 });
 
 var players = {};
+var counter = 0;
 io.on("connection", function (socket) {
-  // reciving new player connection
-  socket.on("new player", function () {
-    players[socket.id] = {
-      id: socket.id,
-      x: 300,
-      y: 400
-    };
-    var player = players[socket.id];
-    //sending player details
-    io.sockets.emit("player details", player);
-  });
+  if (counter === 0) {
+    newPlayer(socket, 20, 175);
+    counter++;
+  } else if (counter === 1) {
+    newPlayer(socket, 740, 175);
+  }
 
   // reciving movements and save in players object
   socket.on("player movement", function (data) {
@@ -54,5 +50,20 @@ io.on("connection", function (socket) {
 
     //sending players state
     io.sockets.emit("state", message);
+    console.log(message);
   });
 });
+
+function newPlayer(socket, x, y) {
+  // reciving new player connection
+  socket.on("new player", function () {
+    players[socket.id] = {
+      id: socket.id,
+      x: x,
+      y: y,
+    };
+    var player = players[socket.id];
+    //sending player details
+    io.sockets.emit("player details", player);
+  });
+}

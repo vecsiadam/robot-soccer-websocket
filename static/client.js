@@ -40,7 +40,7 @@ var gameArea = {
 
     //reciveing players state and draw other players with red color
     socket.on("state", function (message) {
-      console.log(message);
+      //console.log(message);
       ctx = gameArea.context;
       ctx.fillStyle = "red";
       for (var id in message.players) {
@@ -65,14 +65,25 @@ function myPlayerMovement(width, height, color, id, x, y) {
   this.y = y;
   this.update = function () {
     ctx = gameArea.context;
+    //gates
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 150, 10, 300);
+    ctx.fillStyle = "white";
+    ctx.fillRect(790, 150, 10, 300);
+    //my player
     ctx.fillStyle = color;
     ctx.fillRect(this.x, this.y, this.width, this.height);
   };
 }
 
 function updateGameArea() {
+  var movement = {
+    up: true,
+    down: false,
+  };
+  //TODO: itt kell még vele valamit csinálni mert a socketen érkező játékos vibrál
   gameArea.clear();
-  if (gameArea.keys && gameArea.keys[87]) {
+  /*if (gameArea.keys && gameArea.keys[87]) {
     myPlayer.y -= 5;
   }
   if (gameArea.keys && gameArea.keys[83]) {
@@ -83,7 +94,31 @@ function updateGameArea() {
   }
   if (gameArea.keys && gameArea.keys[68]) {
     myPlayer.x += 5;
+  }*/
+
+  if (movement.up) {
+    myPlayer.y -= 5;
+    console.log("fel");
+    if (myPlayer.y === 150 || myPlayer.y < 150) {
+      movement.up = false;
+      movement.down = true;
+    }
   }
+  if (movement.down) {
+    myPlayer.y += 5;
+    console.log("le");
+    if (myPlayer.y === 390 || myPlayer.y > 390) {
+      movement.up = true;
+      movement.down = false;
+    }
+  }
+  if (gameArea.keys && gameArea.keys[65]) {
+    myPlayer.x -= 5;
+  }
+  if (gameArea.keys && gameArea.keys[68]) {
+    myPlayer.x += 5;
+  }
+
   myPlayer.update();
 }
 
