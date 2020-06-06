@@ -7,8 +7,7 @@ socket.emit("new player");
 var myPlayer;
 var myId = null;
 socket.on("player details", function (playerDetails) {
-
-  if(myId === null){
+  if (myId === null) {
     myPlayer = new myPlayerMovement(
       40,
       60,
@@ -37,6 +36,20 @@ var gameArea = {
     });
     window.addEventListener("keyup", function (e) {
       gameArea.keys[e.keyCode] = e.type == "keydown";
+    });
+
+    //reciveing players state and draw other players with red color
+    socket.on("state", function (message) {
+      //console.log(message.players[myId]);
+      ctx = gameArea.context;
+      ctx.fillStyle = "red";
+      for (var id in message.players) {
+        if (id !== myPlayer.id) {
+          var player = message.players[id];
+          ctx.beginPath();
+          ctx.fillRect(player.x, player.y, 40, 60);
+        }
+      }
     });
   },
   clear: function () {
@@ -83,7 +96,7 @@ setInterval(function () {
 
   var message = {
     messageId: generateUuid(),
-    player: playerDescriptor
+    player: playerDescriptor,
   };
 
   //sending message
@@ -91,24 +104,9 @@ setInterval(function () {
 }, 1000 / 60);
 
 function generateUuid() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    var r = (Math.random() * 16) | 0,
+      v = c == "x" ? r : (r & 0x3) | 0x8;
     return v.toString(16);
-  })};
-
-
-//TODO:
-//reciveing players state and drow it red color
-socket.on("state", function (message) {
-  //console.log(message.players[myId]);
-  //gameArea.context.clearRect(0, 0, 800, 600);
-  /*gameArea.context.fillStyle = "red";
-  for (var id in message.players) {
-    if(id !== myPlayer.id){
-      var player = message.players[id];
-      gameArea.context.beginPath();
-      gameArea.context.fillRect(player.x, player.y, 40, 60);
-      gameArea.context.fill();
-    }
-  }*/
-});
+  });
+}
