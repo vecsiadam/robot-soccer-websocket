@@ -27,10 +27,12 @@ var players = {};
 var counter = 0;
 io.on("connection", function (socket) {
   if (counter === 0) {
-    newPlayer(socket, 20, 175);
+    newPlayer(socket, 20, 175, 'red');
     counter++;
   } else if (counter === 1) {
-    newPlayer(socket, 740, 175);
+    newPlayer(socket, 740, 175, 'blue');
+  } else {
+    // just 2 player play this game
   }
 
   // reciving movements and save in players object
@@ -54,13 +56,14 @@ io.on("connection", function (socket) {
   });
 });
 
-function newPlayer(socket, x, y) {
+function newPlayer(socket, x, y, color) {
   // reciving new player connection
   socket.on("new player", function () {
     players[socket.id] = {
       id: socket.id,
       x: x,
       y: y,
+      color: color
     };
     var player = players[socket.id];
     //sending player details
