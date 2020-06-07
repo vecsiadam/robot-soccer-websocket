@@ -11,7 +11,8 @@ socket.emit("new player");
 //reciveing player details and
 var myPlayer;
 var myId = null;
-socket.on("player details", function (playerDetails) {
+var ball = {};
+socket.on("player details", function (playerDetails, ballPos) {
   if (myId === null) {
     myPlayer = new myPlayerMovement(
       40,
@@ -21,6 +22,7 @@ socket.on("player details", function (playerDetails) {
       playerDetails.x,
       playerDetails.y
     );
+    ball = ballPos;
     myId = playerDetails.id;
     gameArea.start();
   }
@@ -62,12 +64,17 @@ function myPlayerMovement(width, height, color, id, x, y) {
     //right gate
     ctx.fillStyle = "white";
     ctx.fillRect(790, 150, 10, 300);
+    //ball
+    //ctx.fillStyle = 'white';
+    //ctx.arc(ball.x, ball.y, 20, 0, 2 * Math.PI);
+    //ctx.fill();
     //my player
     ctx.fillStyle = color;
     ctx.fillRect(this.x, this.y, this.width, this.height);
-    //reciveing players state and draw other players
+    //reciveing players state and draw other players with red color
     socket.on("state", function (message) {
       //console.log(message);
+      //ctx = gameArea.context;
       for (var id in message.players) {
         if (id !== myPlayer.id) {
           var player = message.players[id];
@@ -117,6 +124,7 @@ setInterval(function () {
 
   var message = {
     messageId: generateUuid(),
+    ball: ball,
     player: playerDescriptor,
   };
   //sending my player movement message

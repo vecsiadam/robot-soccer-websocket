@@ -27,10 +27,10 @@ var players = {};
 var counter = 0;
 io.on("connection", function (socket) {
   if (counter === 0) {
-    newPlayer(socket, 20, 175, 'red');
+    newPlayer(socket, 20, 175, "red");
     counter++;
   } else if (counter === 1) {
-    newPlayer(socket, 740, 175, 'blue');
+    newPlayer(socket, 740, 175, "blue");
   } else {
     // just 2 player play this game
   }
@@ -47,6 +47,7 @@ io.on("connection", function (socket) {
 
     var message = {
       messageId: uuid(),
+      ball: data.ball,
       players: players,
     };
 
@@ -63,10 +64,18 @@ function newPlayer(socket, x, y, color) {
       id: socket.id,
       x: x,
       y: y,
-      color: color
+      color: color,
     };
     var player = players[socket.id];
-    //sending player details
-    io.sockets.emit("player details", player);
+    //sending player details and ball
+    if (counter === 0) {
+      io.sockets.emit("player details", player);
+    } else {
+      var ball = {
+        x: 200,
+        y: 200,
+      };
+      io.sockets.emit("player details", player, ball);
+    }
   });
 }
