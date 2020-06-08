@@ -15,8 +15,6 @@ var ball = {};
 socket.on("player details", function (playerDetails, ballPos) {
   if (myId === null) {
     myPlayer = new myPlayerMovement(
-      40,
-      60,
       playerDetails.color,
       playerDetails.id,
       playerDetails.x,
@@ -28,10 +26,8 @@ socket.on("player details", function (playerDetails, ballPos) {
   }
 });
 
-function myPlayerMovement(width, height, color, id, x, y) {
+function myPlayerMovement(color, id, x, y) {
   this.id = id;
-  this.width = width;
-  this.height = height;
   this.x = x;
   this.y = y;
   this.color = color;
@@ -69,9 +65,9 @@ socket.on("state", function (message) {
   ctx.fillStyle = "white";
   ctx.fillRect(790, 100, 10, 200);
   //ball
-  //ctx.fillStyle = "white";
-  //ctx.arc(ball.x, ball.y, 20, 0, 2 * Math.PI);
-  //ctx.fill();
+  ctx.fillStyle = "white";
+  ctx.arc(ball.x, ball.y, 20, 0, 2 * Math.PI);
+  ctx.fill();
   for (var id in message.players) {
     var player = message.players[id];
     ctx.fillStyle = player.color;
