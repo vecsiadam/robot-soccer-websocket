@@ -36,7 +36,7 @@ function myPlayerMovement(color, id, x, y) {
 function updateGameArea() {
   //my player movement down
   if (movement.up) {
-    myPlayer.y -= 2;
+    myPlayer.y -= 5;
     if (myPlayer.y === 100 || myPlayer.y < 100) {
       movement.up = false;
       movement.down = true;
@@ -44,7 +44,7 @@ function updateGameArea() {
   }
   //my player movement down
   if (movement.down) {
-    myPlayer.y += 2;
+    myPlayer.y += 5;
     if (myPlayer.y === 260 || myPlayer.y > 260) {
       movement.up = true;
       movement.down = false;
@@ -91,7 +91,7 @@ setInterval(function () {
   };
   //sending my player movement message
   socket.emit("player movement", message);
-}, 1000 / 25);
+}, 1000 / 10);
 
 function generateUuid() {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
