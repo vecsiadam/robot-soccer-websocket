@@ -24,7 +24,12 @@ server.listen(port, function () {
 });
 
 var players = {};
+var ball = {
+  x: 200,
+  y: 200,
+};
 var counter = 0;
+
 io.on("connection", function (socket) {
   if (counter === 0) {
     newPlayer(socket, 20, 175, "red");
@@ -71,10 +76,6 @@ function newPlayer(socket, x, y, color) {
     if (counter === 0) {
       io.sockets.emit("player details", player);
     } else {
-      var ball = {
-        x: 200,
-        y: 200,
-      };
       io.sockets.emit("player details", player, ball);
     }
   });

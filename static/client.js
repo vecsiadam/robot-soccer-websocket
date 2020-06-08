@@ -9,7 +9,7 @@ var movement = {
 socket.emit("new player");
 
 //reciveing player details and
-var myPlayer;
+var myPlayer = {};
 var myId = null;
 var ball = {};
 socket.on("player details", function (playerDetails, ballPos) {
@@ -24,31 +24,9 @@ socket.on("player details", function (playerDetails, ballPos) {
     );
     ball = ballPos;
     myId = playerDetails.id;
-    gameArea.start();
+    //gameArea.start();
   }
 });
-
-var gameArea = {
-  canvas: document.getElementById("canvas"),
-  start: function () {
-    this.canvas.width = 800;
-    this.canvas.height = 600;
-    this.context = this.canvas.getContext("2d");
-    document.body.insertBefore(this.canvas, document.body.childNodes[0]);
-    this.interval = setInterval(updateGameArea, 20);
-    window.addEventListener("keydown", function (e) {
-      e.preventDefault();
-      gameArea.keys = gameArea.keys || [];
-      gameArea.keys[e.keyCode] = e.type == "keydown";
-    });
-    window.addEventListener("keyup", function (e) {
-      gameArea.keys[e.keyCode] = e.type == "keydown";
-    });
-  },
-  clear: function () {
-    this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-  },
-};
 
 function myPlayerMovement(width, height, color, id, x, y) {
   this.id = id;
@@ -56,66 +34,54 @@ function myPlayerMovement(width, height, color, id, x, y) {
   this.height = height;
   this.x = x;
   this.y = y;
-  this.update = function () {
-    ctx = gameArea.context;
-    //left gate
-    ctx.fillStyle = "white";
-    ctx.fillRect(0, 150, 10, 300);
-    //right gate
-    ctx.fillStyle = "white";
-    ctx.fillRect(790, 150, 10, 300);
-    //ball
-    //ctx.fillStyle = 'white';
-    //ctx.arc(ball.x, ball.y, 20, 0, 2 * Math.PI);
-    //ctx.fill();
-    //my player
-    ctx.fillStyle = color;
-    ctx.fillRect(this.x, this.y, this.width, this.height);
-    //reciveing players state and draw other players with red color
-    socket.on("state", function (message) {
-      //console.log(message);
-      //ctx = gameArea.context;
-      for (var id in message.players) {
-        if (id !== myPlayer.id) {
-          var player = message.players[id];
-          ctx.fillStyle = player.color;
-          ctx.fillRect(player.x, player.y, 40, 60);
-        }
-      }
-    });
-  };
+  this.color = color;
 }
 
 function updateGameArea() {
-  //TODO: itt kell még vele valamit csinálni mert a socketen érkező játékos vibrál
-  gameArea.clear();
   //my player movement down
-  if (movement.up && !movement.down) {
+  if (movement.up) {
     myPlayer.y -= 2;
-    if (myPlayer.y === 150 || myPlayer.y < 150) {
+    if (myPlayer.y === 100 || myPlayer.y < 100) {
       movement.up = false;
       movement.down = true;
     }
   }
   //my player movement down
-  if (movement.down && !movement.up) {
+  if (movement.down) {
     myPlayer.y += 2;
-    if (myPlayer.y === 390 || myPlayer.y > 390) {
+    if (myPlayer.y === 260 || myPlayer.y > 260) {
       movement.up = true;
       movement.down = false;
     }
   }
-  if (gameArea.keys && gameArea.keys[65]) {
-    myPlayer.x -= 5;
-  }
-  if (gameArea.keys && gameArea.keys[68]) {
-    myPlayer.x += 5;
-  }
-
-  myPlayer.update();
 }
 
+var canvas = document.getElementById("canvas");
+canvas.width = 800;
+canvas.height = 400;
+var ctx = canvas.getContext("2d");
+socket.on("state", function (message) {
+  ctx.clearRect(0, 0, 800, 600);
+  //left gate
+  ctx.fillStyle = "white";
+  ctx.fillRect(0, 100, 10, 200);
+  //right gate
+  ctx.fillStyle = "white";
+  ctx.fillRect(790, 100, 10, 200);
+  //ball
+  //ctx.fillStyle = "white";
+  //ctx.arc(ball.x, ball.y, 20, 0, 2 * Math.PI);
+  //ctx.fill();
+  for (var id in message.players) {
+    var player = message.players[id];
+    ctx.fillStyle = player.color;
+    ctx.fillRect(player.x, player.y, 40, 40);
+  }
+  console.log(message.players);
+});
+
 setInterval(function () {
+  updateGameArea();
   var playerDescriptor = {
     id: myId,
     x: myPlayer.x,
@@ -129,7 +95,7 @@ setInterval(function () {
   };
   //sending my player movement message
   socket.emit("player movement", message);
-}, 1000 / 60);
+}, 1000 / 25);
 
 function generateUuid() {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
