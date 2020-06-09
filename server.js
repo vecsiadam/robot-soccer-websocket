@@ -1,108 +1,172 @@
 // Dependencies.
-var express = require('express');
-var http = require('http');
-var path = require('path');
-var socketIO = require('socket.io');
+var express = require("express");
+var http = require("http");
+var path = require("path");
+var socketIO = require("socket.io");
+var uuid = require("uuid-random");
 
 var app = express();
 var server = http.Server(app);
 var io = socketIO(server);
+
 var port = 8080;
 
-var ball = {
-  x: 780,
-  y: 200
-};
-var players = {};
-var counter = 1;
-var redGoals = 0;
-var blueGoals = 0;
-var playersIds =[];
-
-app.set('port', port);
-app.use('/static', express.static(__dirname + '/static'));
+app.set("port", port);
+app.use("/static", express.static(__dirname + "/static"));
 
 // Routing
-app.get('/', function(request, response) {
-  response.sendFile(path.join(__dirname, 'index.html'));
+app.get("/", function (request, response) {
+  response.sendFile(path.join(__dirname, "index.html"));
 });
 
-server.listen(port, function() {
-  console.log('Starting server on port ' + port);
+server.listen(port, function () {
+  console.log("Starting server on port " + port);
 });
 
-io.on('connection', function(socket) {
-  var playersSize = Object.keys(players).length + 1;
-  if(playersSize <= 2 ){
-    if(playersSize === 1){
-      newPlayer(socket, 20, 175);
-      
-    } else {
-      newPlayer(socket, 740, 175);
-    }
+var players = {};
+var ball = {
+  x: 60,
+  y: 200,
+};
+var ballMovement = {
+  right: true,
+  left: false,
+};
+
+var ballInGoalKeeper = {
+  red: false,
+  blue: false,
+};
+
+var result = {
+  red: 0,
+  blue: 0,
+};
+var counter = 0;
+
+io.on("connection", function (socket) {
+  if (counter === 0) {
+    newPlayer(socket, 20, 175, "red");
+    counter++;
+  } else if (counter === 1) {
+    newPlayer(socket, 740, 175, "blue");
   } else {
-      console.log("Players limit max 2");
+    // just two players play this game
   }
-  movement(socket);
+
+  // reciving movements and save in players object
+  socket.on("player movement", function (data) {
+    var player = data.player || {};
+    var serverPlayer = players[player.id] || {};
+
+    if (player.id === serverPlayer.id) {
+      serverPlayer.x = player.x;
+      serverPlayer.y = player.y;
+    }
+
+    updateBall(players);
+
+    // create message object with message id, ball, players and result
+    var message = {
+      messageId: uuid(),
+      ball: ball,
+      players: players,
+      result: result,
+    };
+
+    //sending players and ball state
+    io.sockets.emit("state", message);
+    console.log(message);
+  });
 });
 
-function newPlayer(socket, x, y) {
-  socket.on('new player', function() {
+function updateBall(players) {
+  var player1 = {};
+  var player2 = {};
+  for (var id in players) {
+    if (players[id].color === "red") {
+      player1 = players[id];
+    } else {
+      player2 = players[id];
+    }
+  }
+  //ball movement left
+  if (ballMovement.left) {
+    ball.x -= 5;
+    if (ball.x === 0 || ball.x < 0) {
+      result.blue++;
+      ballMovement.left = false;
+      ballInGoalKeeper.red = true;
+      ballInGoalKeeper.blue = false;
+      setTimeout(function () {
+        ballInGoalKeeper.red = false;
+        ballMovement.right = true;
+      }, 3000);
+    }
+  }
+  //ball movement right
+  if (ballMovement.right) {
+    ball.x += 5;
+    if (ball.x === 780 || ball.x > 780) {
+      result.red++;
+      ballMovement.right = false;
+      ballInGoalKeeper.red = false;
+      ballInGoalKeeper.blue = true;
+      setTimeout(function () {
+        ballInGoalKeeper.blue = false;
+        ballMovement.left = true;
+      }, 3000);
+    }
+  }
+
+  if (ballInGoalKeeper.red && !ballInGoalKeeper.blue) {
+    ball = {
+      x: 60,
+      y: player1.y,
+    };
+  }
+
+  if (!ballInGoalKeeper.red && ballInGoalKeeper.blue) {
+    ball = {
+      x: 720,
+      y: player2.y,
+    };
+  }
+
+  //right player catch the ball and kick
+  if (ball.x - 20 === player1.x && ball.y >= player1.y - 20 && ball.y <= player1.y + 40) {
+    ballInGoalKeeper.red = true;
+    ballInGoalKeeper.blue = false;
+    ballMovement.left = false;
+    setTimeout(function () {
+      ballInGoalKeeper.red = false;
+      ballMovement.right = true;
+    }, 3000);
+  }
+
+  //left player catch the ball and kick
+  if (ball.x + 20 === player2.x && ball.y >= player2.y - 20 && ball.y <= player2.y + 40) {
+    ballInGoalKeeper.red = false;
+    ballInGoalKeeper.blue = true;
+    ballMovement.right = false;
+    setTimeout(function () {
+      ballInGoalKeeper.blue = false;
+      ballMovement.left = true;
+    }, 3000);
+  }
+}
+
+function newPlayer(socket, x, y, color) {
+  // reciving new player connection
+  socket.on("new player", function () {
     players[socket.id] = {
       id: socket.id,
       x: x,
       y: y,
-      color: counter
+      color: color,
     };
-    console.log(players)
-    console.log("Number of players: " + counter)
-    counter++;
-    playersIds.push(socket.id);
+    var player = players[socket.id];
+    //sending player details
+    io.sockets.emit("player details", player);
   });
 }
-
-function movement(socket) {
-  socket.on('movement', function(playerMove, ballMove) {
-    var player = players[socket.id] || {};
-
-    if (player.id === playersIds[0] && playerMove.redUp && player.y >= 0 ) {
-      player.y -= 1;
-    }
-    if (player.id === playersIds[0] && playerMove.redDown && player.y <= 360) {
-      player.y += 1;
-    }
-    if (player.id === playersIds[1] && playerMove.blueUp && player.y >= 0 ) {
-      player.y -= 1;
-    }
-    if (player.id === playersIds[1] && playerMove.blueDown && player.y <= 360) {
-      player.y += 1;
-    }
-
-    if(ballMove.up && ball.y > 0){
-      ball.y -= 1;
-    }
-    if(ballMove.down && ball.y < 400){
-      ball.y += 1;
-    }
-
-   if(ballMove.right && ball.x < 780){
-      ball.x += 5;
-      if(ball.x === 780 && ball.y >= 100 && ball.y <= 300){
-        redGoals++;
-        console.log('Result: blue: ' + blueGoals + ' ,red: ' + redGoals);
-      }
-    }
-   
-    if(ballMove.left && ball.x > 20){
-      ball.x -= 5;
-      if(ball.x === 20 && ball.y >= 100 && ball.y <= 300 ){
-        blueGoals++;
-        console.log('Result: blue: ' + blueGoals + ' ,red: ' + redGoals);
-      }
-    } 
-  });
-}
-
-setInterval(function() {
-  io.sockets.emit('state', players, ball, playersIds, blueGoals, redGoals);
-}, 1000 / 60);
