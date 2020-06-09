@@ -63,7 +63,7 @@ io.on("connection", function (socket) {
       serverPlayer.x = player.x;
       serverPlayer.y = player.y;
     }
-    
+
     updateBall(players);
 
     // create message object with message id, ball, players and result
@@ -131,6 +131,27 @@ function updateBall(players) {
       x: 720,
       y: player2.y,
     };
+  }
+
+  //TODO: y tengelyt is figyelembe venni mert most csak az x et nézzük
+  if (ball.x - 20 === player1.x) {
+    ballInGoalKeeper.red = true;
+    ballInGoalKeeper.blue = false;
+    ballMovement.left = false;
+    setTimeout(function () {
+      ballInGoalKeeper.red = false;
+      ballMovement.right = true;
+    }, 3000);
+  }
+
+  if (ball.x + 20 === player2.x) {
+    ballInGoalKeeper.red = false;
+    ballInGoalKeeper.blue = true;
+    ballMovement.right = false;
+    setTimeout(function () {
+      ballInGoalKeeper.blue = false;
+      ballMovement.left = true;
+    }, 3000);
   }
 }
 
