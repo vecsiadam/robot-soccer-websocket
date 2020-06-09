@@ -63,31 +63,8 @@ io.on("connection", function (socket) {
       serverPlayer.x = player.x;
       serverPlayer.y = player.y;
     }
-
-    var player1 = {};
-    var player2 = {};
-    for (var id in players) {
-      if (players[id].color === "red") {
-        player1 = players[id];
-      } else {
-        player2 = players[id];
-      }
-    }
-
+    
     updateBall(players);
-    if (ballInGoalKeeper.red && !ballInGoalKeeper.blue) {
-      ball = {
-        x: 60,
-        y: player1.y,
-      };
-    }
-
-    if (!ballInGoalKeeper.red && ballInGoalKeeper.blue) {
-      ball = {
-        x: 720,
-        y: player2.y,
-      };
-    }
 
     // create message object with message id, ball, players and result
     var message = {
@@ -104,6 +81,15 @@ io.on("connection", function (socket) {
 });
 
 function updateBall(players) {
+  var player1 = {};
+  var player2 = {};
+  for (var id in players) {
+    if (players[id].color === "red") {
+      player1 = players[id];
+    } else {
+      player2 = players[id];
+    }
+  }
   //ball movement left
   if (ballMovement.left) {
     ball.x -= 5;
@@ -131,6 +117,20 @@ function updateBall(players) {
         ballMovement.left = true;
       }, 3000);
     }
+  }
+
+  if (ballInGoalKeeper.red && !ballInGoalKeeper.blue) {
+    ball = {
+      x: 60,
+      y: player1.y,
+    };
+  }
+
+  if (!ballInGoalKeeper.red && ballInGoalKeeper.blue) {
+    ball = {
+      x: 720,
+      y: player2.y,
+    };
   }
 }
 
