@@ -134,7 +134,7 @@ function updateBall(players) {
   }
 
   //TODO: y tengelyt is figyelembe venni mert most csak az x et nézzük
-  if (ball.x - 20 === player1.x) {
+  if (ball.x - 20 === player1.x && ball.y >= player1.y - 20 && ball.y <= player1.y + 40) {
     ballInGoalKeeper.red = true;
     ballInGoalKeeper.blue = false;
     ballMovement.left = false;
@@ -144,7 +144,7 @@ function updateBall(players) {
     }, 3000);
   }
 
-  if (ball.x + 20 === player2.x) {
+  if (ball.x + 20 === player2.x && ball.y >= player2.y - 20 && ball.y <= player2.y + 40) {
     ballInGoalKeeper.red = false;
     ballInGoalKeeper.blue = true;
     ballMovement.right = false;
