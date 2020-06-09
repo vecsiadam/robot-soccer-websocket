@@ -26,12 +26,16 @@ server.listen(port, function () {
 var players = {};
 var ball = {
   x: 400,
-  y: 300,
+  y: 200,
 };
 var ballMovement = {
   right: true,
   left: false,
 };
+var result = {
+  red: 0,
+  blue: 0,
+}
 var counter = 0;
 
 io.on("connection", function (socket) {
@@ -41,7 +45,7 @@ io.on("connection", function (socket) {
   } else if (counter === 1) {
     newPlayer(socket, 740, 175, "blue");
   } else {
-    // just 2 player play this game
+    // just two players play this game
   }
 
   // reciving movements and save in players object
@@ -56,11 +60,12 @@ io.on("connection", function (socket) {
 
     updateBall();
 
-    // create message object with id, ball and players
+    // create message object with message id, ball, players and result
     var message = {
       messageId: uuid(),
       ball: ball,
       players: players,
+      result: result
     };
 
     //sending players and ball state
@@ -70,20 +75,22 @@ io.on("connection", function (socket) {
 });
 
 function updateBall() {
-  //ball movement down
+  //ball movement left
   if (ballMovement.left) {
     ball.x -= 5;
-    if (ball.x === 100 || ball.x < 100) {
+    if (ball.x === 0 || ball.x < 0) {
       ballMovement.left = false;
       ballMovement.right = true;
+      result.blue ++;
     }
   }
-  //ball movement down
+  //ball movement right
   if (ballMovement.right) {
     ball.x += 5;
-    if (ball.x === 700 || ball.x > 700) {
+    if (ball.x === 780 || ball.x > 780) {
       ballMovement.left = true;
       ballMovement.right = false;
+      result.red ++;
     }
   }
 }
@@ -99,7 +106,7 @@ function newPlayer(socket, x, y, color) {
       color: color,
     };
     var player = players[socket.id];
-    //sending player details and ball
+    //sending player details
     io.sockets.emit("player details", player);
   });
 }

@@ -80,24 +80,22 @@ canvas.height = 400;
 var ctx = canvas.getContext("2d");
 socket.on("state", function (message) {
   ctx.clearRect(0, 0, 800, 600);
-  var ball = message.ball || {};
   //left gate
   ctx.fillStyle = "white";
   ctx.fillRect(0, 100, 10, 200);
   //right gate
   ctx.fillStyle = "white";
   ctx.fillRect(790, 100, 10, 200);
+  //ball
+  var ball = message.ball || {};
+  ctx.fillStyle = "white";
+  ctx.fillRect(ball.x, ball.y, 20, 20);
 
   for (var id in message.players) {
     //player
     var player = message.players[id];
     ctx.fillStyle = player.color;
     ctx.fillRect(player.x, player.y, 40, 40);
-
-    //ball
-    ctx.fillStyle = "white";
-    ctx.arc(ball.x, ball.y, 20, 0, 2 * Math.PI);
-    ctx.fill();
   }
-  //console.log(message.players);
+  console.log(message);
 });
