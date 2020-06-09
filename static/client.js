@@ -5,7 +5,7 @@ var movement = {
   down: false,
 };
 
-//Connecting to the websocket
+//connecting to the websocket
 socket.emit("new player");
 
 //reciveing player details and
@@ -20,7 +20,6 @@ socket.on("player details", function (playerDetails) {
       playerDetails.y
     );
     myId = playerDetails.id;
-    //gameArea.start();
   }
 });
 
