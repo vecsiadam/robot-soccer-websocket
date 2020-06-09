@@ -86,16 +86,17 @@ socket.on("state", function (message) {
   //right gate
   ctx.fillStyle = "white";
   ctx.fillRect(790, 100, 10, 200);
-  //ball
-  var ball = message.ball || {};
-  ctx.fillStyle = "white";
-  ctx.fillRect(ball.x, ball.y, 20, 20);
 
   for (var id in message.players) {
     //player
     var player = message.players[id];
     ctx.fillStyle = player.color;
     ctx.fillRect(player.x, player.y, 40, 40);
+
+    //ball
+    var ball = message.ball || {};
+    ctx.fillStyle = "white";
+    ctx.fillRect(ball.x, ball.y, 20, 20);
   }
   console.log(message);
 });

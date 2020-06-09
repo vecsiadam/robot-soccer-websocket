@@ -25,17 +25,23 @@ server.listen(port, function () {
 
 var players = {};
 var ball = {
-  x: 400,
+  x: 60,
   y: 200,
 };
 var ballMovement = {
   right: true,
   left: false,
 };
+
+var ballInGoalKeeper = {
+  red: false,
+  blue: false,
+};
+
 var result = {
   red: 0,
   blue: 0,
-}
+};
 var counter = 0;
 
 io.on("connection", function (socket) {
@@ -58,14 +64,37 @@ io.on("connection", function (socket) {
       serverPlayer.y = player.y;
     }
 
-    updateBall();
+    var player1 = {};
+    var player2 = {};
+    for (var id in players) {
+      if (players[id].color === "red") {
+        player1 = players[id];
+      } else {
+        player2 = players[id];
+      }
+    }
+
+    updateBall(players);
+    if (ballInGoalKeeper.red && !ballInGoalKeeper.blue) {
+      ball = {
+        x: 60,
+        y: player1.y,
+      };
+    }
+
+    if (!ballInGoalKeeper.red && ballInGoalKeeper.blue) {
+      ball = {
+        x: 720,
+        y: player2.y,
+      };
+    }
 
     // create message object with message id, ball, players and result
     var message = {
       messageId: uuid(),
       ball: ball,
       players: players,
-      result: result
+      result: result,
     };
 
     //sending players and ball state
@@ -74,27 +103,36 @@ io.on("connection", function (socket) {
   });
 });
 
-function updateBall() {
+function updateBall(players) {
   //ball movement left
   if (ballMovement.left) {
     ball.x -= 5;
     if (ball.x === 0 || ball.x < 0) {
+      result.blue++;
       ballMovement.left = false;
-      ballMovement.right = true;
-      result.blue ++;
+      ballInGoalKeeper.red = true;
+      ballInGoalKeeper.blue = false;
+      setTimeout(function () {
+        ballInGoalKeeper.red = false;
+        ballMovement.right = true;
+      }, 3000);
     }
   }
   //ball movement right
   if (ballMovement.right) {
     ball.x += 5;
     if (ball.x === 780 || ball.x > 780) {
-      ballMovement.left = true;
+      result.red++;
       ballMovement.right = false;
-      result.red ++;
+      ballInGoalKeeper.red = false;
+      ballInGoalKeeper.blue = true;
+      setTimeout(function () {
+        ballInGoalKeeper.blue = false;
+        ballMovement.left = true;
+      }, 3000);
     }
   }
 }
-
 
 function newPlayer(socket, x, y, color) {
   // reciving new player connection
