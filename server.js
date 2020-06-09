@@ -25,8 +25,12 @@ server.listen(port, function () {
 
 var players = {};
 var ball = {
-  x: 200,
-  y: 200,
+  x: 400,
+  y: 300,
+};
+var ballMovement = {
+  right: true,
+  left: false,
 };
 var counter = 0;
 
@@ -50,17 +54,40 @@ io.on("connection", function (socket) {
       serverPlayer.y = player.y;
     }
 
+    updateBall();
+
+    // create message object with id, ball and players
     var message = {
       messageId: uuid(),
-      ball: data.ball,
+      ball: ball,
       players: players,
     };
 
-    //sending players state
+    //sending players and ball state
     io.sockets.emit("state", message);
     console.log(message);
   });
 });
+
+function updateBall() {
+  //ball movement down
+  if (ballMovement.left) {
+    ball.x -= 5;
+    if (ball.x === 100 || ball.x < 100) {
+      ballMovement.left = false;
+      ballMovement.right = true;
+    }
+  }
+  //ball movement down
+  if (ballMovement.right) {
+    ball.x += 5;
+    if (ball.x === 700 || ball.x > 700) {
+      ballMovement.left = true;
+      ballMovement.right = false;
+    }
+  }
+}
+
 
 function newPlayer(socket, x, y, color) {
   // reciving new player connection
@@ -73,10 +100,6 @@ function newPlayer(socket, x, y, color) {
     };
     var player = players[socket.id];
     //sending player details and ball
-    if (counter === 0) {
-      io.sockets.emit("player details", player);
-    } else {
-      io.sockets.emit("player details", player, ball);
-    }
+    io.sockets.emit("player details", player);
   });
 }

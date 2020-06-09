@@ -11,8 +11,7 @@ socket.emit("new player");
 //reciveing player details and
 var myPlayer = {};
 var myId = null;
-var ball = {};
-socket.on("player details", function (playerDetails, ballPos) {
+socket.on("player details", function (playerDetails) {
   if (myId === null) {
     myPlayer = new myPlayerMovement(
       playerDetails.color,
@@ -20,7 +19,6 @@ socket.on("player details", function (playerDetails, ballPos) {
       playerDetails.x,
       playerDetails.y
     );
-    ball = ballPos;
     myId = playerDetails.id;
     //gameArea.start();
   }
@@ -52,30 +50,6 @@ function updateGameArea() {
   }
 }
 
-var canvas = document.getElementById("canvas");
-canvas.width = 800;
-canvas.height = 400;
-var ctx = canvas.getContext("2d");
-socket.on("state", function (message) {
-  ctx.clearRect(0, 0, 800, 600);
-  //left gate
-  ctx.fillStyle = "white";
-  ctx.fillRect(0, 100, 10, 200);
-  //right gate
-  ctx.fillStyle = "white";
-  ctx.fillRect(790, 100, 10, 200);
-  //ball
-  ctx.fillStyle = "white";
-  ctx.arc(ball.x, ball.y, 20, 0, 2 * Math.PI);
-  ctx.fill();
-  for (var id in message.players) {
-    var player = message.players[id];
-    ctx.fillStyle = player.color;
-    ctx.fillRect(player.x, player.y, 40, 40);
-  }
-  console.log(message.players);
-});
-
 setInterval(function () {
   updateGameArea();
   var playerDescriptor = {
@@ -86,7 +60,6 @@ setInterval(function () {
 
   var message = {
     messageId: generateUuid(),
-    ball: ball,
     player: playerDescriptor,
   };
   //sending my player movement message
@@ -100,3 +73,31 @@ function generateUuid() {
     return v.toString(16);
   });
 }
+
+var canvas = document.getElementById("canvas");
+canvas.width = 800;
+canvas.height = 400;
+var ctx = canvas.getContext("2d");
+socket.on("state", function (message) {
+  ctx.clearRect(0, 0, 800, 600);
+  var ball = message.ball || {};
+  //left gate
+  ctx.fillStyle = "white";
+  ctx.fillRect(0, 100, 10, 200);
+  //right gate
+  ctx.fillStyle = "white";
+  ctx.fillRect(790, 100, 10, 200);
+
+  for (var id in message.players) {
+    //player
+    var player = message.players[id];
+    ctx.fillStyle = player.color;
+    ctx.fillRect(player.x, player.y, 40, 40);
+
+    //ball
+    ctx.fillStyle = "white";
+    ctx.arc(ball.x, ball.y, 20, 0, 2 * Math.PI);
+    ctx.fill();
+  }
+  //console.log(message.players);
+});
