@@ -31,7 +31,7 @@ function myPlayerMovement(color, id, x, y) {
 }
 
 function updateGameArea() {
-  //my player movement down
+  //my player movement up
   if (movement.up) {
     myPlayer.y -= 5;
     if (myPlayer.y === 100 || myPlayer.y < 100) {
