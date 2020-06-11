@@ -4,3 +4,6 @@ Egy robotfocira alkalmas szerver programot kell készíteni (csapatokban elvége
 
 Server start: 
 `$ node server.js`
+
+Client:
+http://localhost:8080
